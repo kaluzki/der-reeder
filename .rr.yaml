@@ -1,0 +1,15 @@
+version: "3"
+server:
+  command: "php public/index.php"
+  env:
+    - XDEBUG_TRIGGER: 1
+
+http:
+  address: 0.0.0.0:8080
+  pool:
+    num_workers: 1
+    debug: true
+
+logs:
+  level: debug
+  mode: development

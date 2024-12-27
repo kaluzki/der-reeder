@@ -1,0 +1,26 @@
+{
+    "require": {
+        "php": ">=8.4",
+        "runtime/roadrunner-symfony-nyholm": "dev-main",
+        "symfony/flex": "^2.4",
+        "symfony/framework-bundle": "^7.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Kaluzki\\DerReeder\\": ["src"]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "allow-plugins": {
+            "symfony/runtime": true,
+            "symfony/flex": true
+        }
+    },
+    "extra": {
+        "runtime": {
+            "class": "Runtime\\RoadRunnerSymfonyNyholm\\Runtime"
+        }
+    }
+}
