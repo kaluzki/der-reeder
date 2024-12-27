@@ -26,7 +26,6 @@ services:
         xdebug.mode=debug
         xdebug.discover_client_host=yes
         xdebug.client_host=host.docker.internal
-        
         EOF
 
         COPY --from=ghcr.io/roadrunner-server/roadrunner /usr/bin/rr /usr/local/bin/rr
@@ -62,3 +61,33 @@ services:
       traefik.http.routers.{app}.tls: true
       traefik.http.routers.{app}.tls.certresolver: letsencrypt
       traefik.http.routers.{app}.rule: Host(`${ENV_URL:-${COMPOSE_PROJECT_NAME}.app.localhost}`)
+
+  dosbox:
+    build:
+      dockerfile_inline: |-
+        FROM tudorh/dosbox:hostpulse
+        RUN adduser -D app
+        USER app
+        RUN \
+        mkdir ~/.dosbox -p; \
+        cat > ~/.dosbox/dosbox-0.74-2.conf <<EOF
+        [sdl]
+        windowresolution=1600x900
+        output=overlay
+        autolock=false
+        [dos]
+        keyboardlayout=gr
+        [autoexec]
+        mount C /app/resources
+        C:
+        EOF
+    entrypoint:
+      - dosbox
+    environment:
+      DISPLAY: unix${DISPLAY}
+    volumes:
+      - ~/.config/pulse:/home/app/.config/pulse:ro
+      - /run/user/${UID:-1000}/pulse:/run/pulse:ro
+      - /tmp/.X11-unix:/tmp/.X11-unix:ro
+      - /dev/shm:/dev/shm
+      - .:/app
