@@ -31,28 +31,22 @@ services:
         COPY --from=ghcr.io/roadrunner-server/roadrunner /usr/bin/rr /usr/local/bin/rr
         COPY --from=composer /usr/bin/composer /usr/bin/composer
         RUN useradd -ms /bin/bash app
-
+    working_dir: /app
     command:
       - rr
       - serve
-
     hostname: ${COMPOSE_PROJECT_NAME}
-
     user: ${UID:-1000}:${GID:-1000}
-
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
       - ${ENV_VOLUME_HOME:-home:/home/app}
       - .:/app
-
     extra_hosts :
       - host.docker.internal:host-gateway
-
     environment:
       APP_ENV: ${APP_ENV-prod}
       PHP_IDE_CONFIG: "serverName=Unnamed"
-
     labels:
       traefik.enable: true
       traefik.http.services.{app}.loadbalancer.server.port: 8080
