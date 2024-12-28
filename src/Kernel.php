@@ -2,9 +2,9 @@
 
 namespace Kaluzki\DerReeder;
 
+use Kaluzki\DerReeder\GameSave\Entity;
+use Kaluzki\DerReeder\GameSave\Provider;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
-use Symfony\Component\Finder\Finder;
-use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel;
 use Symfony\Component\Routing\Attribute\Route;
@@ -17,6 +17,34 @@ class Kernel extends HttpKernel\Kernel
     {
         $env = $context['APP_ENV'] ?? 'prod';
         return new self($env, (bool)($context['APP_DEBUG'] ?? $env !== 'prod'));
+    }
+
+    public static function gen($iter, ?callable $cb = null, ?int $start = null): iterable
+    {
+        $iter = is_iterable($iter) ? $iter : (array)$iter;
+        if (!$cb) {
+            if ($start !== null) {
+                yield from $iter;
+                return;
+            }
+            foreach ($iter as $value) {
+                yield $start++ => $value;
+            }
+            return;
+        }
+
+        $i = $start ?? 0;
+        foreach ($iter as $key => $value) {
+            foreach ($cb($value, $key, $i) as $mapped) {
+                yield ($start === null ? $key : $i) => $mapped;
+                $i++;
+            }
+        }
+    }
+
+    public static function arr($iter, ?callable $cb = null, ?int $start = null): array
+    {
+        return iterator_to_array(self::gen($iter, $cb, $start));
     }
 
     public static function out($iter, ?callable $cb = null, string $separator = PHP_EOL): string
@@ -36,7 +64,7 @@ class Kernel extends HttpKernel\Kernel
         return $stream;
     }
 
-    private function renderSaves(Finder $files, string $slug = ''): iterable
+    private function renderSaves(Provider $saves, string $slug = ''): iterable
     {
         if ($slug) {
             yield <<<HTML
@@ -45,31 +73,25 @@ class Kernel extends HttpKernel\Kernel
             return;
         }
 
-         foreach ($files as $file) {
-            yield "<p>{$file->getFilename()}</p>";
+         foreach ($saves as $name => $file) {
+            yield "<p>$name: $file->name</p>";
         }
     }
 
-    private function renderSave(SplFileInfo $file): iterable
+    private function renderSave(Entity $save): iterable
     {
-        yield "<h1>{$file->getFilename()}</h1>";
+        yield "<h1>$save->name</h1>";
     }
 
     #[Route('/{name}', methods: ['GET'])]
-    public function main(string $name = ''): Response
+    public function main(Provider $saves, string $name = ''): Response
     {
         $out = self::out(...);
-        $finder = new Finder()->files()->in('resources/GAMESAVE')->sortByName();
-        $file = null;
-        if ($name) {
-            $file = iterator_to_array(
-                $finder->filter(fn(SplFileInfo $file) => $file->getFilename() === $name),
-                false
-            )[0] ?? null;
-        }
-        $content = match($file) {
-            null => $this->renderSaves($finder->name("*.SVE"), $name),
-            default => $this->renderSave($file),
+
+        $save = $name ? $saves->get($name) : null;
+        $content = match($save) {
+            null => $this->renderSaves($saves, $name),
+            default => $this->renderSave($save),
         };
 
         return new Response(<<<HTML
