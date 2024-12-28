@@ -23,5 +23,7 @@ return function(ContainerConfigurator $container): void {
             ->call('sortByName')
 
         ->set(DerReeder\GameSave\Provider::class)->args([service('reeder.gamesave.provider.files')])
+
+        ->set(DerReeder\GameSave\Command::class)->tag('console.command')
     ;
 };

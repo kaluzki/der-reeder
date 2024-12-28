@@ -1,0 +1,6 @@
+#!/usr/bin/env php
+<?php
+
+require_once dirname(__DIR__) . '/vendor/autoload_runtime.php';
+
+return static fn (array $context) => Kaluzki\DerReeder\Kernel::fromContext($context)->cli;

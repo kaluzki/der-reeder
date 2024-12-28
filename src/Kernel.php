@@ -4,6 +4,7 @@ namespace Kaluzki\DerReeder;
 
 use Kaluzki\DerReeder\GameSave\Entity;
 use Kaluzki\DerReeder\GameSave\Provider;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel;
@@ -13,10 +14,21 @@ class Kernel extends HttpKernel\Kernel
 {
     use MicroKernelTrait;
 
+    public const string VERSION = '0.0.1';
+
     public static function fromContext(array $context): self
     {
         $env = $context['APP_ENV'] ?? 'prod';
         return new self($env, (bool)($context['APP_DEBUG'] ?? $env !== 'prod'));
+    }
+
+    public Application $cli {
+        get {
+            $cli = new Application($this);
+            $cli->setName(__NAMESPACE__);
+            $cli->setVersion(self::VERSION);
+            return $cli;
+        }
     }
 
     public static function gen($iter, ?callable $cb = null, ?int $start = null): iterable
