@@ -2,7 +2,7 @@
 
 namespace Kaluzki\DerReeder;
 
-use Kaluzki\DerReeder\GameSave\Entity;
+use Kaluzki\DerReeder\GameSave\Game;
 use Kaluzki\DerReeder\GameSave\Provider;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
@@ -76,7 +76,7 @@ class Kernel extends HttpKernel\Kernel
         return $stream;
     }
 
-    private function renderSaves(Provider $saves, string $slug = ''): iterable
+    private function renderGames(Provider $games, string $slug = ''): iterable
     {
         if ($slug) {
             yield <<<HTML
@@ -85,25 +85,25 @@ class Kernel extends HttpKernel\Kernel
             return;
         }
 
-         foreach ($saves as $name => $file) {
+         foreach ($games as $name => $file) {
             yield "<p>$name: $file->name</p>";
         }
     }
 
-    private function renderSave(Entity $save): iterable
+    private function renderGame(Game $game): iterable
     {
-        yield "<h1>$save->name</h1>";
+        yield "<h1>$game->name</h1>";
     }
 
     #[Route('/{name}', methods: ['GET'])]
-    public function main(Provider $saves, string $name = ''): Response
+    public function main(Provider $games, string $name = ''): Response
     {
         $out = self::out(...);
 
-        $save = $name ? $saves->get($name) : null;
-        $content = match($save) {
-            null => $this->renderSaves($saves, $name),
-            default => $this->renderSave($save),
+        $game = $name ? $games->get($name) : null;
+        $content = match($game) {
+            null => $this->renderGames($games, $name),
+            default => $this->renderGame($game),
         };
 
         return new Response(<<<HTML

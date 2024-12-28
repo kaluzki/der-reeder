@@ -8,7 +8,7 @@ use Psr\Http\Message\StreamFactoryInterface;
 use Stringable;
 
 /**
- * @implements IteratorAggregate<string, Entity>
+ * @implements IteratorAggregate<string, Game>
  */
 readonly class Provider implements IteratorAggregate
 {
@@ -23,16 +23,18 @@ readonly class Provider implements IteratorAggregate
     public function getIterator(): \Traversable
     {
         foreach ($this->files as $file) {
-            yield ($path = (string)$file) => new Entity($this->factory->createStream($path));
+            $path = (string)$file;
+            $stream = $this->factory->createStreamFromFile($path);
+            yield $path => new Game($stream);
         }
     }
 
-    public function get(string $needle): ?Entity
+    public function get(string $name): ?Game
     {
         /** @noinspection PhpLoopCanBeConvertedToArrayFindInspection */
-        foreach ($this as $entity) {
-            if ($entity->name === $needle) {
-                return $entity;
+        foreach ($this as $game) {
+            if ($game->name === $name) {
+                return $game;
             }
         }
         return null;

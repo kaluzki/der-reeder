@@ -12,29 +12,32 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class Command extends SymfonyCommand
 {
     public function __construct(
-        private readonly Provider $saves,
+        private readonly Provider $games,
     ) {
         parent::__construct('reeder:gamesave');
     }
 
     protected function configure(): void
     {
-        $this->addArgument('save');
+        $this->addArgument('game');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $name = $input->getArgument('save');
+        $name = $input->getArgument('game');
         if (!$name) {
             $name = $io->choice('Select', Kernel::arr(
-                $this->saves,
-                fn(Entity $save) => yield $save->name,
+                $this->games,
+                fn(Game $game) => yield $game->name,
                 0
             ));
         }
-        $save = $this->saves->get($name) ?? throw new InvalidArgumentException("Unknown save `$name`");
-        $io->success($save->name);
+        $save = $this->games->get($name) ?? throw new InvalidArgumentException("Unknown game `$name`");
+        $io->title($save->name);
+        foreach ($save->cities as $city) {
+            $io->writeln("$city->name ($city->country)");
+        }
         return self::SUCCESS;
     }
 }
