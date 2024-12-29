@@ -36,7 +36,8 @@ class Command extends SymfonyCommand
         $save = $this->games->get($name) ?? throw new InvalidArgumentException("Unknown game `$name`");
         $io->title($save->name);
         foreach ($save->cities as $city) {
-            $io->writeln("$city->name ($city->country)");
+            $io->writeln("$city->name ($city->country) [{$city->continent->de()}]");
+            $io->writeln(json_encode($city->json, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR));
         }
         return self::SUCCESS;
     }
