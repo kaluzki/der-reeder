@@ -15,11 +15,6 @@ class Game
         $this->stream->close();
     }
 
-    public static function subStr(string $data, int $offset, ?int $length): string
-    {
-        return iconv('CP437', 'UTF-8', trim(substr($data, $offset, $length)));
-    }
-
     public string $name {
         get => basename((string)$this->stream->getMetadata('uri'));
     }
@@ -28,7 +23,7 @@ class Game
      * @var iterable<string, City>
      */
     public iterable $cities {
-        get => $this->readStrings(33507, 103, 100, City::class, 'name');
+        get => $this->readStrings(33507, 103, 100, City::class);
     }
 
     private function readStrings(

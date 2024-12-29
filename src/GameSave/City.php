@@ -4,13 +4,15 @@ namespace Kaluzki\DerReeder\GameSave;
 
 class City
 {
-    public function __construct(private readonly string $data) {}
+    use JsonFromUnpackTrait;
 
-    public string $name {
-        get => Game::subStr($this->data, 0, 20);
-    }
+    private const array FIELDS = [
+        'name' => ['A20', [self::class, 'utf8']],
+        'country' => ['A20', [self::class, 'utf8']],
+        '...' => 'H*',
+    ];
 
-    public string $country {
-        get => Game::subStr($this->data, 20, 20);
-    }
+    public string $name {get => $this->json[__PROPERTY__];}
+
+    public string $country {get => $this->json[__PROPERTY__];}
 }

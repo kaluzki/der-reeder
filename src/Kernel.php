@@ -34,22 +34,24 @@ class Kernel extends HttpKernel\Kernel
     public static function gen($iter, ?callable $cb = null, ?int $start = null): iterable
     {
         $iter = is_iterable($iter) ? $iter : (array)$iter;
-        if (!$cb) {
-            if ($start !== null) {
-                yield from $iter;
-                return;
-            }
+        if (!$cb && $start === null) {
+            yield from $iter;
+        } else if (!$cb) {
             foreach ($iter as $value) {
                 yield $start++ => $value;
             }
-            return;
-        }
-
-        $i = $start ?? 0;
-        foreach ($iter as $key => $value) {
-            foreach ($cb($value, $key, $i) as $mapped) {
-                yield ($start === null ? $key : $i) => $mapped;
-                $i++;
+        } else if ($start === null) {
+            $start = 0;
+            foreach ($iter as $key => $value) {
+                foreach ($cb($value, $key, $start++) as $mapped) {
+                    yield $key => $mapped;
+                }
+            }
+        } else {
+            foreach ($iter as $key => $value) {
+                foreach ($cb($value, $key, $start) as $mapped) {
+                    yield $start++ => $mapped;
+                }
             }
         }
     }
