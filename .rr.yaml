@@ -9,6 +9,11 @@ http:
   pool:
     num_workers: 1
     debug: true
+  middleware:
+    - static
+  static:
+    dir: public/
+    forbid: .php
 
 logs:
   level: debug

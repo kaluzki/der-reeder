@@ -5,7 +5,8 @@
         "symfony/flex": "^2.4",
         "symfony/framework-bundle": "^7.2",
         "psr/http-client": "^1.0",
-        "ext-iconv": "*"
+        "ext-iconv": "*",
+        "symfony/dotenv": "^7.2"
     },
     "autoload": {
         "psr-4": {
