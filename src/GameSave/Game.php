@@ -7,7 +7,7 @@ use Psr\Http\Message\StreamInterface;
 class Game
 {
     public function __construct(
-        readonly private StreamInterface $stream
+        readonly public StreamInterface $stream
     ) {}
 
     public function __destruct()
@@ -42,14 +42,6 @@ class Game
                 $keyProperty && $key = $data->$keyProperty;
             }
             yield $key => $data;
-        }
-    }
-
-    public function bytes(int $offset, int $length): iterable
-    {
-        $this->stream->seek($offset);
-        for ($i = 0; $i < abs($length); ++$i) {
-            yield $this->stream->read(1);
         }
     }
 }

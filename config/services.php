@@ -14,7 +14,7 @@ return function(ContainerConfigurator $container): void {
         ->set('env(REEDER_ASSETS_CDN)', DerReeder\GameSave\Controller\Output::BS_CDN)
     ;
 
-    $container->services()->defaults()->autowire()
+    $container->services()->defaults()->autowire()->autoconfigure()
 
         ->load(DerReeder\GameSave\Controller::class . '\\', '../src/GameSave/Controller/')
             ->tag('controller.service_arguments')

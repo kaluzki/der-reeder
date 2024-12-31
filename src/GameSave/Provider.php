@@ -6,11 +6,16 @@ namespace Kaluzki\DerReeder\GameSave;
 use IteratorAggregate;
 use Psr\Http\Message\StreamFactoryInterface;
 use Stringable;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Attribute\AsTargetedValueResolver;
+use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
+use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
 /**
  * @implements IteratorAggregate<string, Game>
  */
-readonly class Provider implements IteratorAggregate
+#[AsTargetedValueResolver]
+readonly class Provider implements IteratorAggregate, ValueResolverInterface
 {
     /**
      * @param iterable<string|Stringable> $files
@@ -38,5 +43,12 @@ readonly class Provider implements IteratorAggregate
             }
         }
         return null;
+    }
+
+    public function resolve(Request $request, ArgumentMetadata $argument): iterable
+    {
+        if ($argument->getType() === Game::class) {
+            yield $this->get($request->attributes->get($argument->getName()));
+        }
     }
 }

@@ -15,7 +15,7 @@ readonly class Output
     public function __construct(
         private string $assets = self::BS,
         private string $assetsCdn = self::BS_CDN,
-        private string $title = '',
+        public string $title = '',
         private string $htmlAttributes = 'lang="de"',
         private string $bodyAttributes = '',
     ){}
