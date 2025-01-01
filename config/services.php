@@ -16,14 +16,18 @@ return function(ContainerConfigurator $container): void {
 
     $container->services()->defaults()->autowire()->autoconfigure()
 
-        ->load(DerReeder\GameSave\Controller::class . '\\', '../src/GameSave/Controller/')
-            ->tag('controller.service_arguments')
-
         ->set(DerReeder\GameSave\Controller\Output::class)->args([
             env('REEDER_ASSETS'),
             env('REEDER_ASSETS_CDN'),
-            'Der Reeder',
+            '$title' => 'Der Reeder',
+            '$template' => <<<HTML
+            <div class="container-fluid"> 
+            %s
+            </div>
+            HTML,
         ])
+
+        ->set(DerReeder\GameSave\Controller\MainController::class)->tag('controller.service_arguments')
 
         ->set(Psr17Factory::class)
             ->alias(StreamFactoryInterface::class, Psr17Factory::class)

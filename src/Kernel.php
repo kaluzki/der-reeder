@@ -56,4 +56,13 @@ class Kernel extends HttpKernel\Kernel
     {
         return iterator_to_array(self::gen($iter, $cb, $start));
     }
+
+    public static function args(object $obj, string $method, array $args, array $vars): array
+    {
+        $ref = new \ReflectionClass($obj);
+        foreach ($ref->getMethod($method)->getParameters() as $i => $parameter) {
+            isset($args[$i]) && $vars[$parameter->getName()] = $args[$i];
+        }
+        return $vars;
+    }
 }
