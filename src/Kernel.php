@@ -2,8 +2,12 @@
 
 namespace Kaluzki\DerReeder;
 
+use Kaluzki\DerReeder\DependencyInjection\Attribute\AsCommand;
+use Kaluzki\DerReeder\DependencyInjection\AttributeHandlerPasses;
+use Kaluzki\DerReeder\DependencyInjection\PassBuilder;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel;
 
 class Kernel extends HttpKernel\Kernel
@@ -16,6 +20,13 @@ class Kernel extends HttpKernel\Kernel
     {
         $env = $context['APP_ENV'] ?? 'prod';
         return new self($env, (bool)($context['APP_DEBUG'] ?? $env !== 'prod'));
+    }
+
+    protected function build(ContainerBuilder $container): void
+    {
+        new PassBuilder($container)->add(
+            ...new AttributeHandlerPasses(AsCommand::passHandler(...)),
+        );
     }
 
     public Application $cli {
