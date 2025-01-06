@@ -24,24 +24,28 @@ class AttributeHandlerPasses implements \IteratorAggregate
 
         yield new Pass(fn(ContainerBuilder $container) => $container->registerAttributeForAutoconfiguration(
             $type,
-            function (ChildDefinition $def, object $attr) {
-                $def->addTag($attr::class);
-                $this->attrs[$attr::class] = $attr;
+            function (ChildDefinition $def, object $attr, \ReflectionMethod|\ReflectionClass $ref) {
+                $def->addTag($tagName = implode('.', [
+                    $attr::class,
+                    spl_object_id($attr),
+                    spl_object_id($ref),
+                ]));
+                $this->attrs[$tagName] = [$attr, $ref];
             }
         ), $this->configPriority);
 
         yield new Pass(
             function (ContainerBuilder $container) {
-                foreach ($this->attrs as $tagName => $attr) {
+                foreach ($this->attrs as $tagName => [$attr, $ref]) {
                     foreach ($container->findTaggedServiceIds($tagName, true) as $id => $tags) {
                         ($this->handler)(
                             $attr,
                             $container,
+                            $ref,
                             $id,
-                            $container->findDefinition($id),
-                            $tagName,
-                            $tags
+                            $def = $container->findDefinition($id),
                         );
+                        $def->clearTag($tagName);
                     }
                 }
             },

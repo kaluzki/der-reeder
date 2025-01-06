@@ -40,6 +40,6 @@ return function(ContainerConfigurator $container): void {
 
         ->set(DerReeder\GameSave\Provider::class)->args([service('reeder.gamesave.provider.files')])
 
-        ->set(DerReeder\GameSave\Command::class)->tag('console.command')
+        ->set(DerReeder\GameSave\Command::class)
     ;
 };
