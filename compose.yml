@@ -62,9 +62,7 @@ services:
         FROM tudorh/dosbox:hostpulse
         RUN adduser -D app
         USER app
-        RUN \
-        mkdir ~/.dosbox -p; \
-        cat > ~/.dosbox/dosbox-0.74-2.conf <<EOF
+        COPY --chown=app:app <<EOF /home/app/.dosbox/dosbox-0.74-2.conf
         [sdl]
         windowresolution=1600x900
         output=overlay
@@ -79,8 +77,10 @@ services:
       - dosbox
     environment:
       DISPLAY: unix${DISPLAY}
+      XAUTHORITY: /home/app/.Xauthority
     volumes:
       - ~/.config/pulse:/home/app/.config/pulse:ro
+      - ${XAUTHORITY}:/home/app/.Xauthority:ro
       - /run/user/${UID:-1000}/pulse:/run/pulse:ro
       - /tmp/.X11-unix:/tmp/.X11-unix:ro
       - /dev/shm:/dev/shm
