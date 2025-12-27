@@ -1,0 +1,21 @@
+#!/bin/sh
+
+REGION=$(grep rw-p /proc/1/maps | head -n${1-9} | tail -n1 | cut -d' ' -f1)
+START=$((0x$(echo $REGION | cut -d'-' -f1)))
+END=$((0x$(echo $REGION | cut -d'-' -f2)))
+SIZE=$((END - START))
+COMBINED=$((START | SIZE))
+BS=$((COMBINED & -COMBINED))
+[ $BS -gt 1048576 ] && BS=1048576 #1MB
+SKIP=$((START / BS))
+COUNT=$((SIZE / BS))
+
+#echo "start: $START"
+#echo "end: $END"
+#echo "size: $SIZE"
+#echo "combined: $COMBINED"
+#echo "bs: $BS"
+#echo "skip: $SKIP"
+#echo "count: $COUNT"
+
+dd if=/proc/1/mem bs=$BS skip=$SKIP count=$COUNT status=none
