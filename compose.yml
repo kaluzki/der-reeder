@@ -1,3 +1,4 @@
+# docker compose up --remove-orphans -V -d
 networks:
   default:
     name: ${ENV_NET:-env}
@@ -31,6 +32,7 @@ services:
       - traefik.http.routers.${COMPOSE_PROJECT_NAME}-app.tls=true
       - traefik.http.routers.${COMPOSE_PROJECT_NAME}-app.rule=Host(`${ENV_URL:-${COMPOSE_PROJECT_NAME}.app.localhost}`)
 
+  # sudo scanmem $(pidof dosbox) -c 'dregion !9; option scan_data_type bytearray;'
   dosbox:
     build:
       dockerfile_inline: |-
@@ -50,6 +52,11 @@ services:
         EOF
     entrypoint:
       - dosbox
+#      - tail
+#      - -f
+#      - /dev/null
+    cap_add: # docker compose exec --user root dosbox /app/bin/dump-reeder-memory
+      - SYS_PTRACE
     environment:
       DISPLAY: unix${DISPLAY}
       XAUTHORITY: /home/app/.Xauthority
