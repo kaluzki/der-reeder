@@ -34,36 +34,29 @@ services:
 
   # sudo scanmem $(pidof dosbox) -c 'dregion !9; option scan_data_type bytearray;'
   dosbox:
-    build:
-      dockerfile_inline: |-
-        FROM tudorh/dosbox:hostpulse
-        RUN adduser -D app
-        USER app
-        COPY --chown=app:app <<EOF /home/app/.dosbox/dosbox-0.74-2.conf
-        [sdl]
-        windowresolution=1600x900
-        output=overlay
-        autolock=false
-        [dos]
-        keyboardlayout=gr
-        [autoexec]
-        mount C /app/resources
-        C:
-        EOF
-    entrypoint:
-      - dosbox
-#      - tail
-#      - -f
-#      - /dev/null
-    cap_add: # docker compose exec --user root dosbox /app/bin/dump-reeder-memory
-      - SYS_PTRACE
+    image: xampp/dosbox
     environment:
-      DISPLAY: unix${DISPLAY}
-      XAUTHORITY: /home/app/.Xauthority
+      - XAUTHORITY
     volumes:
-      - ~/.config/pulse:/home/app/.config/pulse:ro
-      - ${XAUTHORITY}:/home/app/.Xauthority:ro
-      - /run/user/${UID:-1000}/pulse:/run/pulse:ro
-      - /tmp/.X11-unix:/tmp/.X11-unix:ro
-      - /dev/shm:/dev/shm
       - .:/app
+      # grafik
+      - /tmp/.X11-unix:/tmp/.X11-unix:ro
+      - ${XAUTHORITY}:${XAUTHORITY}:ro
+      - /dev/shm:/dev/shm
+      # audio
+      - ~/.config/pulse/cookie:/home/app/.config/pulse/cookie:ro
+      - ${XDG_RUNTIME_DIR}/pulse/native:${XDG_RUNTIME_DIR}/pulse/native:ro
+    command:
+      - dosbox
+      - ./resources/REEDER.EXE
+    devices:
+      - /dev/snd
+      - /dev/dri
+
+  ksv:
+    image: kaitai/ksv
+    hostname: ksv
+    entrypoint:
+      - tail
+      - -f
+      - /dev/null
